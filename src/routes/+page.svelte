@@ -17,16 +17,15 @@
 	// $: labels =
 	$: maxNumberOfLabelsForRows = 6;
 	$: maxNumberOfLabelsForColumns = 2;
-	// $: cellSize = '100cqi';
-	// $: cellSize = `min(100cqh/${cellsInRow+maxNumberOfLabelsForRows}, 100cqi/${cellsInRow+maxNumberOfLabelsForColumns})`
-	// $: gridSize = `min(100cqh, 100cqi)`;
-	// $: gridSize = `100cqmin`;
-	// $: gridSize = `calc(100cqi*${cellsInRow / (cellsInRow + maxNumberOfLabelsForColumns)})`;
+	$: maxWidth = maxNumberOfLabelsForColumns +  cellsInRow;
+	$: maxHeight = maxNumberOfLabelsForRows +  cellsInRow;
 </script>
 
 <div
 	class="layout"
-	style="grid-template: {maxNumberOfLabelsForRows}fr {cellsInRow}fr / {maxNumberOfLabelsForColumns}fr {cellsInRow}fr;"
+	style="grid-template: {maxNumberOfLabelsForRows}fr {cellsInRow}fr / {maxNumberOfLabelsForColumns}fr {cellsInRow}fr;
+	width: min(100cqi, calc(100cqh*{maxWidth}/{maxHeight}));
+	height: min(100cqh, calc(100cqi*{maxHeight}/{maxWidth}));"
 >
 	<div></div>
 	<div class="columnsLabels"></div>
@@ -41,44 +40,28 @@
 <style>
 	.layout {
 		display: grid;
-		width: 100cqmin;
-		height: 100cqmin;
 		background-color: aqua;
-		position: absolute;
+		position: relative;
 		bottom: 0;
 		right: 0;
 	}
 	.columnsLabels {
-		/* position: absolute; */
-		/* right: 0;
-
-		top: 0; */
-		/* width: 60cqi;
-		height: 100px; */
 		background-color: red;
 	}
 	.rowsLabels {
-		/* position: absolute; */
-		/* bottom: 0;
-
-		left: 0;
-		width: 100px;
-		height: 80cqh; */
 		background-color: blue;
 	}
 	.grid {
-		/* position: absolute; */
-		/* right: 0;
-		bottom: 0; */
 		display: grid;
-
-		/* width: 80cqi;
-		height: 80cqh; */
 	}
 	:global(body) {
 		margin: 0;
 		padding: 0;
 		box-sizing: border-box;
 		background-color: #030303;
+		height: 100vh;
+		display: flex;
+		align-items: end;
+		justify-content: end;
 	}
 </style>
