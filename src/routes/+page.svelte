@@ -14,11 +14,12 @@
 		if (!labels.length) return [0];
 		return labels;
 	};
-	// $: labels =
-	$: maxNumberOfLabelsForRows = 6;
-	$: maxNumberOfLabelsForColumns = 2;
-	$: maxWidth = maxNumberOfLabelsForColumns +  cellsInRow;
-	$: maxHeight = maxNumberOfLabelsForRows +  cellsInRow;
+	$: labelsForColumns = [[2], [2, 1], [2], [2, 1]];
+	$: labelsForRows = [[2], [2, 1], [2], [2, 1]];
+	$: maxNumberOfLabelsForRows = Math.max(...labelsForColumns.map(({ length }) => length));
+	$: maxNumberOfLabelsForColumns = Math.max(...labelsForRows.map(({ length }) => length));
+	$: maxWidth = maxNumberOfLabelsForColumns + cellsInRow;
+	$: maxHeight = maxNumberOfLabelsForRows + cellsInRow;
 </script>
 
 <div
@@ -28,7 +29,15 @@
 	height: min(100cqh, calc(100cqi*{maxHeight}/{maxWidth}));"
 >
 	<div></div>
-	<div class="columnsLabels"></div>
+	<div class="columnsLabels">
+		{#each labelsForColumns as labelsGroup}
+			<div class="columnBlockWithLabels">
+				{#each labelsGroup as label}
+					<div>{label}</div>
+				{/each}
+			</div>
+		{/each}
+	</div>
 	<div class="rowsLabels"></div>
 	<div class="grid" style="grid-template: repeat({cellsInRow}, auto) / repeat({cellsInRow}, auto);">
 		{#each cells as cell}
@@ -41,19 +50,45 @@
 	.layout {
 		display: grid;
 		background-color: aqua;
-		position: relative;
-		bottom: 0;
-		right: 0;
+
+		& > .columnsLabels {
+			background-color: red;
+			display: flex;
+			justify-content: space-around;
+			align-items: flex-end;
+
+			& > .columnBlockWithLabels {
+				background-color: yellow;
+				height: 50%;
+				width: 100%;
+				border-radius: 2cqmin;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+
+				& > * {
+					width: 100%;
+					height: 100%;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					font-size: 15cqmin;
+					user-select: none;
+				}
+			}
+			& > .columnBlockWithLabels:nth-child(odd) {
+				background-color: lightblue;
+			}
+		}
+		& > .rowsLabels {
+			background-color: blue;
+		}
+		& > .grid {
+			display: grid;
+		}
 	}
-	.columnsLabels {
-		background-color: red;
-	}
-	.rowsLabels {
-		background-color: blue;
-	}
-	.grid {
-		display: grid;
-	}
+
 	:global(body) {
 		margin: 0;
 		padding: 0;
@@ -61,7 +96,8 @@
 		background-color: #030303;
 		height: 100vh;
 		display: flex;
-		align-items: end;
-		justify-content: end;
+		align-items: center;
+		justify-content: center;
+		font-family: Arial, sans-serif;
 	}
 </style>
