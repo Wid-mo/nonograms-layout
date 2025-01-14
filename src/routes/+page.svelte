@@ -15,6 +15,7 @@
 		return labels;
 	};
 	$: labelsForColumns = [[2], [2, 1], [2], [2, 1]];
+	// [].map((line) => generateLabelsForLine(line));
 	$: labelsForRows = [[2], [2, 1], [2], [2, 1]];
 	$: maxNumberOfLabelsForRows = Math.max(...labelsForColumns.map(({ length }) => length));
 	$: maxNumberOfLabelsForColumns = Math.max(...labelsForRows.map(({ length }) => length));
@@ -38,7 +39,15 @@
 			</div>
 		{/each}
 	</div>
-	<div class="rowsLabels"></div>
+	<div class="rowsLabels">
+		{#each labelsForRows as labelsGroup}
+			<div class="rowBlockWithLabels">
+				{#each labelsGroup as label}
+					<div>{label}</div>
+				{/each}
+			</div>
+		{/each}
+	</div>
 	<div class="grid" style="grid-template: repeat({cellsInRow}, auto) / repeat({cellsInRow}, auto);">
 		{#each cells as cell}
 			<input type="checkbox" checked={cell} />
@@ -59,7 +68,7 @@
 
 			& > .columnBlockWithLabels {
 				background-color: yellow;
-				height: 50%;
+				height: 100%;
 				width: 100%;
 				border-radius: 2cqmin;
 				display: flex;
@@ -73,7 +82,7 @@
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					font-size: 15cqmin;
+					font-size: 13cqmin;
 					user-select: none;
 				}
 			}
@@ -82,7 +91,35 @@
 			}
 		}
 		& > .rowsLabels {
-			background-color: blue;
+			background-color: red;
+			display: flex;
+			justify-content: space-around;
+			/* align-items: flex-end; */
+			flex-direction: column;
+
+
+			& > .rowBlockWithLabels {
+				background-color: yellow;
+				height: 50%;
+				width: 100%;
+				border-radius: 2cqmin;
+				display: flex;
+				align-items: center;
+				justify-content: center;
+
+				& > * {
+					width: 100%;
+					height: 100%;
+					display: flex;
+					justify-content: center;
+					align-items: center;
+					font-size: 13cqmin;
+					user-select: none;
+				}
+			}
+			& > .rowBlockWithLabels:nth-child(odd) {
+				background-color: lightblue;
+			}
 		}
 		& > .grid {
 			display: grid;
@@ -99,5 +136,6 @@
 		align-items: center;
 		justify-content: center;
 		font-family: Arial, sans-serif;
+		color: white;
 	}
 </style>
