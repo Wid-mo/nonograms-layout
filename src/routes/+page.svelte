@@ -14,9 +14,18 @@
 		if (!labels.length) return [0];
 		return labels;
 	};
-	$: labelsForColumns = [[2], [2, 1], [2], [2, 1]];
-	// [].map((line) => generateLabelsForLine(line));
-	$: labelsForRows = [[2], [2, 1], [2], [2, 1]];
+	const splitByGroupsLengthN = (n) => (arr) =>
+		Array.from({ length: arr.length / n }, (_, i) => arr.slice(i * n, (i + 1) * n));
+	$: labelsForColumns = splitByGroupsLengthN(cellsInRow)(
+		Array.from(
+			{ length: cellsInRow ** 2 },
+			(_, i) => ~~(i / cellsInRow) + ((i * cellsInRow) % cellsInRow ** 2)
+		).map((idx) => cells[idx])
+	).map((line) => generateLabelsForLine(line));
+	$: labelsForRows = splitByGroupsLengthN(cellsInRow)(
+		[...Array(cellsInRow ** 2).keys()].map((idx) => cells[idx])
+	).map((line) => generateLabelsForLine(line));
+
 	$: maxNumberOfLabelsForRows = Math.max(...labelsForColumns.map(({ length }) => length));
 	$: maxNumberOfLabelsForColumns = Math.max(...labelsForRows.map(({ length }) => length));
 	$: maxWidth = maxNumberOfLabelsForColumns + cellsInRow;
@@ -27,7 +36,7 @@
 	class="layout"
 	style="grid-template: {maxNumberOfLabelsForRows}fr {cellsInRow}fr / {maxNumberOfLabelsForColumns}fr {cellsInRow}fr;
 	width: min(100cqi, calc(100cqh*{maxWidth}/{maxHeight}));
-	height: min(100cqh, calc(100cqi*{maxHeight}/{maxWidth}));"
+	aspect-ratio: {maxWidth} / {maxHeight};"
 >
 	<div></div>
 	<div class="columnsLabels">
@@ -49,8 +58,8 @@
 		{/each}
 	</div>
 	<div class="grid" style="grid-template: repeat({cellsInRow}, auto) / repeat({cellsInRow}, auto);">
-		{#each cells as cell}
-			<input type="checkbox" checked={cell} />
+		{#each { length: cells.length }}
+			<input type="checkbox" />
 		{/each}
 	</div>
 </div>
@@ -58,16 +67,13 @@
 <style>
 	.layout {
 		display: grid;
-		background-color: aqua;
 
 		& > .columnsLabels {
-			background-color: red;
 			display: flex;
 			justify-content: space-around;
 			align-items: flex-end;
 
 			& > .columnBlockWithLabels {
-				background-color: yellow;
 				height: 100%;
 				width: 100%;
 				border-radius: 2cqmin;
@@ -87,19 +93,16 @@
 				}
 			}
 			& > .columnBlockWithLabels:nth-child(odd) {
-				background-color: lightblue;
+				background-color: hsla(0, 0%, 43%, 0.445);
 			}
 		}
 		& > .rowsLabels {
-			background-color: red;
 			display: flex;
 			justify-content: space-around;
 			/* align-items: flex-end; */
 			flex-direction: column;
 
-
 			& > .rowBlockWithLabels {
-				background-color: yellow;
 				height: 50%;
 				width: 100%;
 				border-radius: 2cqmin;
@@ -118,7 +121,7 @@
 				}
 			}
 			& > .rowBlockWithLabels:nth-child(odd) {
-				background-color: lightblue;
+				background-color: hsla(0, 0%, 43%, 0.445);
 			}
 		}
 		& > .grid {
@@ -136,6 +139,9 @@
 		align-items: center;
 		justify-content: center;
 		font-family: Arial, sans-serif;
-		color: white;
+		color: gray;
+	}
+	* {
+		/* outline: 2px solid red; */
 	}
 </style>
