@@ -1,5 +1,5 @@
 <script>
-	let cellsInRow = 4;
+	let cellsInRow = 15;
 
 	$: cells = Array.from({ length: cellsInRow * cellsInRow }, () => Math.random() < 0.5);
 	const last = (arr) => arr[arr.length - 1];
@@ -31,7 +31,7 @@
 	$: maxWidth = maxNumberOfLabelsForColumns + cellsInRow;
 	$: maxHeight = maxNumberOfLabelsForRows + cellsInRow;
 
-	$: checkboxes = Array(cellsInRow ** 2).fill(true);
+	$: checkboxes = Array(cellsInRow ** 2).fill(false);
 	$: gameOver = checkboxes.every((v, i) => v === cells[i]);
 	$: if (gameOver) {
 		alert("OK")
@@ -94,7 +94,7 @@
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					font-size: 13cqmin;
+					/* font-size: 13cqmin; */
 					user-select: none;
 				}
 			}
@@ -122,7 +122,7 @@
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					font-size: 13cqmin;
+					/* font-size: 13cqmin; */
 					user-select: none;
 				}
 			}
