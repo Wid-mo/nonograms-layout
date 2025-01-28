@@ -1,5 +1,5 @@
 <script>
-	let cellsInRow = 15;
+	let cellsInRow = 16;
 
 	$: cells = Array.from({ length: cellsInRow * cellsInRow }, () => Math.random() < 0.5);
 	const last = (arr) => arr[arr.length - 1];
@@ -26,21 +26,21 @@
 		[...Array(cellsInRow ** 2).keys()].map((idx) => cells[idx])
 	).map((line) => generateLabelsForLine(line));
 
-	$: maxNumberOfLabelsForRows = Math.max(...labelsForColumns.map(({ length }) => length));
-	$: maxNumberOfLabelsForColumns = Math.max(...labelsForRows.map(({ length }) => length));
-	$: maxWidth = maxNumberOfLabelsForColumns + cellsInRow;
-	$: maxHeight = maxNumberOfLabelsForRows + cellsInRow;
+	$: maxNumberOfLabelsForRows = Math.max(...labelsForRows.map(({ length }) => length));
+	$: maxNumberOfLabelsForColumns = Math.max(...labelsForColumns.map(({ length }) => length));
+	$: maxWidth = maxNumberOfLabelsForRows + cellsInRow;
+	$: maxHeight = maxNumberOfLabelsForColumns + cellsInRow;
 
 	$: checkboxes = Array(cellsInRow ** 2).fill(false);
 	$: gameOver = checkboxes.every((v, i) => v === cells[i]);
 	$: if (gameOver) {
-		alert("OK")
+		alert('OK');
 	}
 </script>
 
 <div
 	class="layout"
-	style="grid-template: {maxNumberOfLabelsForRows}fr {cellsInRow}fr / {maxNumberOfLabelsForColumns}fr {cellsInRow}fr;
+	style="grid-template: {maxNumberOfLabelsForColumns}fr {cellsInRow}fr / {maxNumberOfLabelsForRows}fr {cellsInRow}fr;
 	width: min(100cqi, calc(100cqh*{maxWidth}/{maxHeight}));
 	aspect-ratio: {maxWidth} / {maxHeight};"
 >
@@ -49,7 +49,9 @@
 		{#each labelsForColumns as labelsGroup}
 			<div class="columnBlockWithLabels">
 				{#each labelsGroup as label}
-					<div>{label}</div>
+					<div style="font-size: calc(100cqmin - 12px)">
+						{label}
+					</div>
 				{/each}
 			</div>
 		{/each}
@@ -58,7 +60,7 @@
 		{#each labelsForRows as labelsGroup}
 			<div class="rowBlockWithLabels">
 				{#each labelsGroup as label}
-					<div>{label}</div>
+					<div style="font-size: calc(100cqmin / {maxNumberOfLabelsForRows} - 12px)">{label}</div>
 				{/each}
 			</div>
 		{/each}
@@ -87,6 +89,7 @@
 				flex-direction: column;
 				align-items: center;
 				justify-content: center;
+				container-type: inline-size;
 
 				& > * {
 					width: 100%;
@@ -115,6 +118,7 @@
 				display: flex;
 				align-items: center;
 				justify-content: center;
+				container-type: inline-size;
 
 				& > * {
 					width: 100%;
@@ -122,7 +126,6 @@
 					display: flex;
 					justify-content: center;
 					align-items: center;
-					/* font-size: 13cqmin; */
 					user-select: none;
 				}
 			}
