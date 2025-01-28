@@ -1,5 +1,5 @@
 <script>
-	const cellsInRow = 4;
+	let cellsInRow = 4;
 
 	$: cells = Array.from({ length: cellsInRow * cellsInRow }, () => Math.random() < 0.5);
 	const last = (arr) => arr[arr.length - 1];
@@ -30,6 +30,12 @@
 	$: maxNumberOfLabelsForColumns = Math.max(...labelsForRows.map(({ length }) => length));
 	$: maxWidth = maxNumberOfLabelsForColumns + cellsInRow;
 	$: maxHeight = maxNumberOfLabelsForRows + cellsInRow;
+
+	$: checkboxes = Array(cellsInRow ** 2).fill(true);
+	$: gameOver = checkboxes.every((v, i) => v === cells[i]);
+	$: if (gameOver) {
+		alert("OK")
+	}
 </script>
 
 <div
@@ -58,8 +64,8 @@
 		{/each}
 	</div>
 	<div class="grid" style="grid-template: repeat({cellsInRow}, auto) / repeat({cellsInRow}, auto);">
-		{#each { length: cells.length }}
-			<input type="checkbox" />
+		{#each checkboxes as checked}
+			<input type="checkbox" bind:checked />
 		{/each}
 	</div>
 </div>
