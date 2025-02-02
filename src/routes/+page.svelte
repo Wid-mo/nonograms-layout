@@ -1,7 +1,7 @@
 <script>
-	let cellsInRow = 16;
+	let cellsInRow = 5;
 
-	$: cells = Array.from({ length: cellsInRow * cellsInRow }, () => Math.random() < 0.5);
+	$: solutionCells = Array.from({ length: cellsInRow * cellsInRow }, () => Math.random() < 0.5);
 	const last = (arr) => arr[arr.length - 1];
 	const generateLabelsForLine = (arr) => {
 		const labels = arr.reduce((groupsLengths, field, i, arr) => {
@@ -20,10 +20,10 @@
 		Array.from(
 			{ length: cellsInRow ** 2 },
 			(_, i) => ~~(i / cellsInRow) + ((i * cellsInRow) % cellsInRow ** 2)
-		).map((idx) => cells[idx])
+		).map((idx) => solutionCells[idx])
 	).map((line) => generateLabelsForLine(line));
 	$: labelsForRows = splitByGroupsLengthN(cellsInRow)(
-		[...Array(cellsInRow ** 2).keys()].map((idx) => cells[idx])
+		[...Array(cellsInRow ** 2).keys()].map((idx) => solutionCells[idx])
 	).map((line) => generateLabelsForLine(line));
 
 	$: maxNumberOfLabelsForRows = Math.max(...labelsForRows.map(({ length }) => length));
@@ -31,10 +31,19 @@
 	$: maxWidth = maxNumberOfLabelsForRows + cellsInRow;
 	$: maxHeight = maxNumberOfLabelsForColumns + cellsInRow;
 
-	$: checkboxes = Array(cellsInRow ** 2).fill(false);
-	$: gameOver = checkboxes.every((v, i) => v === cells[i]);
-	$: if (gameOver) {
-		alert('OK');
+	$: cells = Array(cellsInRow ** 2).fill('');
+
+	function gameOver() {
+		if (cells.every((cell, i) => (solutionCells[i] ? cell === '█' : cell !== '█'))) {
+			setTimeout(()=>cellsInRow += 1, 1000)
+			;
+		}
+	}
+	function toggle(i) {
+		cells[i] = cells[i] === '' ? '█' : '';
+	}
+	function setXMark(i) {
+		cells[i] = 'X';
 	}
 </script>
 
@@ -66,8 +75,16 @@
 		{/each}
 	</div>
 	<div class="grid" style="grid-template: repeat({cellsInRow}, auto) / repeat({cellsInRow}, auto);">
-		{#each checkboxes as checked}
-			<input type="checkbox" bind:checked />
+		{#each cells as cell, i}
+			<!-- svelte-ignore a11y_consider_explicit_label -->
+			<button
+				on:pointerdown={(e) => {toggle(i)}}
+				on:contextmenu|preventDefault={() => setXMark(i)}
+				on:pointerup={gameOver}
+				class:filled={cell == '█'}
+				class:crossMark={cell == 'X'}
+			>
+			</button>
 		{/each}
 	</div>
 </div>
@@ -135,6 +152,18 @@
 		}
 		& > .grid {
 			display: grid;
+			
+			& > button {
+				background-color: gray;
+				cursor: pointer;
+
+				&.filled {
+					background-color: black;
+				}
+				&.crossMark {
+					background-color: darkgray;
+				}
+			}
 		}
 	}
 
@@ -149,8 +178,9 @@
 		justify-content: center;
 		font-family: Arial, sans-serif;
 		color: gray;
+		overflow: hidden;
 	}
-	* {
-		/* outline: 2px solid red; */
-	}
+	/* * {
+		outline: 2px solid red;
+	} */
 </style>
