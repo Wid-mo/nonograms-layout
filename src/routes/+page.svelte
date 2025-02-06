@@ -35,15 +35,46 @@
 
 	function gameOver() {
 		if (cells.every((cell, i) => (solutionCells[i] ? cell === '█' : cell !== '█'))) {
-			setTimeout(()=>cellsInRow += 1, 1000)
-			;
+			setTimeout(() => (cellsInRow += 1), 1000);
 		}
 	}
-	function toggle(i) {
-		cells[i] = cells[i] === '' ? '█' : '';
+	let startPressTime;
+	let indexStartedCell;
+	let valueToDrawing;
+	function handlePointerDown(e, i) {
+		startPressTime = new Date();
+		const cell = cells[i];
+		indexStartedCell = i;
+		const eventType = e.type === 'touch' ? 'touch' : e.buttons == 1 ? 'leftMouse' : 'rightMouse';
+		const transitions = {
+			'': { leftMouse: '█', rightMouse: 'X', touch: '█' },
+			'█': { leftMouse: '', rightMouse: 'X', touch: 'X' },
+			X: { leftMouse: '', rightMouse: '', touch: '' }
+		};
+		valueToDrawing = transitions[cells[i]][eventType];
+		cells[i] = valueToDrawing;
 	}
-	function setXMark(i) {
-		cells[i] = 'X';
+	let freezeAxis;
+	function handleDragged(e, i) {
+		// if not pressed		
+		if (!(e.buttons == 0x1 || e.buttons == 0x2)) return;
+
+		const index2d = (i) => [i % cellsInRow, ~~(i / cellsInRow)];
+		if (!freezeAxis) {
+			const [x, y] = index2d(i);
+			const [sx, sy] = index2d(indexStartedCell);
+			const { abs } = Math;
+			freezeAxis = abs(x - sx) > abs(y - sy) ? 'y' : abs(x - sx) < abs(y - sy) ? 'x' : null;
+			if (!freezeAxis) return;
+		}
+		const [x, y] = index2d(i);
+		const [sx, sy] = index2d(indexStartedCell);
+		const [tx, ty] = freezeAxis == 'y' ? [x, sy] : [sx, y];
+		const targetCellIdx = ty * cellsInRow + tx;
+		cells[targetCellIdx] = valueToDrawing;
+	}
+	function handlePointerUp() {
+		freezeAxis = null;
 	}
 </script>
 
@@ -78,9 +109,15 @@
 		{#each cells as cell, i}
 			<!-- svelte-ignore a11y_consider_explicit_label -->
 			<button
-				on:pointerdown={(e) => {toggle(i)}}
-				on:contextmenu|preventDefault={() => setXMark(i)}
-				on:pointerup={gameOver}
+				on:pointerdown={(e) => {
+					handlePointerDown(e, i);
+				}}
+				on:pointerenter={(e) => {
+					handleDragged(e, i);
+				}}
+				on:pointerup={handlePointerUp}
+				on:contextmenu|preventDefault
+				on:click={gameOver}
 				class:filled={cell == '█'}
 				class:crossMark={cell == 'X'}
 			>
@@ -152,7 +189,7 @@
 		}
 		& > .grid {
 			display: grid;
-			
+
 			& > button {
 				background-color: gray;
 				cursor: pointer;
