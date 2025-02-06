@@ -208,7 +208,25 @@
 					background-color: black;
 				}
 				&.crossMark {
-					background-color: darkgray;
+					position: relative;
+				}
+				&.crossMark::before,
+				&.crossMark::after {
+					content: '';
+					position: absolute;
+					top: 50%;
+					left: 50%;
+					translate: -50% -50%;
+					background-color: black;
+					border-radius: 50%;
+					width: 80%;
+					height: 10%;
+				}
+				&.crossMark::before {
+					rotate: 45deg;
+				}
+				&.crossMark::after {
+					rotate: -45deg;
 				}
 			}
 		}
