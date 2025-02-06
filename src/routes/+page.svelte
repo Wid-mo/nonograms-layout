@@ -1,4 +1,6 @@
 <script>
+	import { preventDefault } from 'svelte/legacy';
+
 	let cellsInRow = 5;
 
 	$: solutionCells = Array.from({ length: cellsInRow * cellsInRow }, () => Math.random() < 0.5);
@@ -33,17 +35,16 @@
 
 	$: cells = Array(cellsInRow ** 2).fill('');
 
+	let winningFlare = false;
 	function gameOver() {
 		if (cells.every((cell, i) => (solutionCells[i] ? cell === '█' : cell !== '█'))) {
-			setTimeout(() => (cellsInRow += 1), 1000);
+			winningFlare = true;
+			setTimeout(() => ((cellsInRow += 1), (winningFlare = false)), 1000);
 		}
 	}
-	let startPressTime;
 	let indexStartedCell;
 	let valueToDrawing;
 	function handlePointerDown(e, i) {
-		startPressTime = new Date();
-		const cell = cells[i];
 		indexStartedCell = i;
 		const eventType = e.type === 'touch' ? 'touch' : e.buttons == 1 ? 'leftMouse' : 'rightMouse';
 		const transitions = {
@@ -56,7 +57,7 @@
 	}
 	let freezeAxis;
 	function handleDragged(e, i) {
-		// if not pressed		
+		// if not pressed
 		if (!(e.buttons == 0x1 || e.buttons == 0x2)) return;
 
 		const index2d = (i) => [i % cellsInRow, ~~(i / cellsInRow)];
@@ -77,6 +78,8 @@
 		freezeAxis = null;
 	}
 </script>
+
+<svelte:body on:contextmenu|preventDefault />
 
 <div
 	class="layout"
@@ -125,6 +128,9 @@
 		{/each}
 	</div>
 </div>
+{#if winningFlare}
+	<div class="winning-flare"></div>
+{/if}
 
 <style>
 	.layout {
@@ -193,6 +199,10 @@
 			& > button {
 				background-color: gray;
 				cursor: pointer;
+				&:focus {
+					outline: none;
+					box-shadow: none;
+				}
 
 				&.filled {
 					background-color: black;
@@ -201,6 +211,19 @@
 					background-color: darkgray;
 				}
 			}
+		}
+	}
+
+	.winning-flare {
+		position: absolute;
+		inset: 0;
+		background: radial-gradient(transparent 60%, green);
+		animation: flare 1000ms;
+		opacity: 0;
+	}
+	@keyframes flare {
+		50% {
+			opacity: 1;
 		}
 	}
 
